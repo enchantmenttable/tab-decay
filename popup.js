@@ -7,12 +7,11 @@ const nukeRotBtn = document.getElementById('nuke-rot');
 const brutalTooltip = document.getElementById('brutal-tooltip');
 
 const DEFAULT_PURGE_LABEL = 'PURGE STALE ⏳';
-const DEFAULT_NUKE_LABEL = 'NUKE THE ROT 💀🗑️🗿';
+const DEFAULT_NUKE_LABEL = 'NUKE THE ROT 💀🗿';
 
 const totalTabsEl = document.getElementById('total-tabs');
 const hourglassCountEl = document.getElementById('hourglass-count');
 const skullCountEl = document.getElementById('skull-count');
-const trashCountEl = document.getElementById('trash-count');
 const moaiCountEl = document.getElementById('moai-count');
 
 // Load and display stats
@@ -22,7 +21,6 @@ async function loadStats() {
       totalTabsEl.textContent = stats.total;
       hourglassCountEl.textContent = stats.hourglass;
       skullCountEl.textContent = stats.skull;
-      trashCountEl.textContent = stats.trash;
       moaiCountEl.textContent = stats.moai;
 
       // Update toggle state

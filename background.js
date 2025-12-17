@@ -1,21 +1,41 @@
 // Tab Decay Background Service Worker
 
+// const DECAY_THRESHOLDS = {
+//   HOURGLASS: 1 * 60 * 60 * 1000,      // 1 hour
+//   SKULL: 4 * 60 * 60 * 1000,          // 4 hours
+//   MOAI: 8 * 60 * 60 * 1000            // 8 hours
+// };
+
 const DECAY_THRESHOLDS = {
-  HOURGLASS: 1 * 60 * 60 * 1000,      // 1 hour
-  SKULL: 4 * 60 * 60 * 1000,          // 4 hours
-  TRASH: 8 * 60 * 60 * 1000,          // 8 hours
-  MOAI: 2 * 24 * 60 * 60 * 1000       // 2 days
+  HOURGLASS: 1 * 60 * 1000,      // 1 hour
+  SKULL: 4 * 60 * 1000,          // 4 hours
+  MOAI: 6 * 60 * 1000            // 8 hours
 };
+
 
 const EMOJIS = {
   HOURGLASS: '⏳',
   SKULL: '💀',
-  TRASH: '🗑️',
   MOAI: '🗿'
 };
 
 const ALARM_NAME = 'tab-decay-update';
 const ALARM_PERIOD_MINUTES = 1;
+
+// Sites with frequent title updates - skip emoji to avoid flicker
+const SKIP_DOMAINS = [
+  'mail.google.com',      // Gmail
+  'inbox.google.com',     // Inbox
+  'slack.com',            // Slack workspaces
+  'discord.com',          // Discord
+  'web.whatsapp.com',     // WhatsApp Web
+  'twitter.com',          // Twitter/X
+  'x.com'                 // Twitter/X
+];
+
+// Learning thresholds for dynamic site detection
+const TITLE_CHANGE_THRESHOLD = 5;        // Changes
+const TITLE_CHANGE_WINDOW = 5 * 60 * 1000;  // Within 5 minutes
 
 // Store original titles and last focused times
 let tabMetadata = {};
@@ -46,13 +66,41 @@ async function ensureInitialized() {
   return initPromise;
 }
 
+// Check if a URL should skip emoji (known dynamic sites)
+function shouldSkipDomain(url) {
+  if (!url) return false;
+  try {
+    const urlObj = new URL(url);
+    return SKIP_DOMAINS.some(domain => urlObj.hostname.includes(domain));
+  } catch {
+    return false;
+  }
+}
+
+// Check if tab should skip emoji (patterns + learning)
+function shouldSkipTab(tabId) {
+  const metadata = tabMetadata[tabId];
+  if (!metadata) return false;
+
+  // Check URL patterns
+  if (shouldSkipDomain(metadata.url)) return true;
+
+  // Check learned dynamic behavior
+  if (metadata.isDynamic) return true;
+
+  return false;
+}
+
 function seedTabMetadata(tab) {
   if (tabMetadata[tab.id]) return false;
 
   tabMetadata[tab.id] = {
     originalTitle: tab.title,
     lastFocusedTime: tab.lastAccessed || Date.now(),
-    url: tab.url
+    url: tab.url,
+    titleChangeCount: 0,
+    titleChangeWindow: Date.now(),
+    isDynamic: false
   };
 
   return true;
@@ -130,13 +178,46 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       tabMetadata[tabId] = {
         originalTitle: changeInfo.title,
         lastFocusedTime: Date.now(),
-        url: tab.url
+        url: tab.url,
+        titleChangeCount: 0,
+        titleChangeWindow: Date.now(),
+        isDynamic: false
       };
     } else {
       // Check if this is a genuine title change (not our emoji prefix)
       const hasEmoji = Object.values(EMOJIS).some(emoji => changeInfo.title.startsWith(emoji));
       if (!hasEmoji) {
+        // Skip if title matches what we already stored (just emoji being removed by toggle)
+        if (changeInfo.title === tabMetadata[tabId].originalTitle) {
+          return;
+        }
+
         tabMetadata[tabId].originalTitle = changeInfo.title;
+
+        // LEARNING: Track title change frequency to detect dynamic sites
+        const now = Date.now();
+        const metadata = tabMetadata[tabId];
+
+        // Ensure metadata has tracking fields (for tabs created before this update)
+        if (metadata.titleChangeCount === undefined) {
+          metadata.titleChangeCount = 0;
+          metadata.titleChangeWindow = now;
+          metadata.isDynamic = false;
+        }
+
+        // Reset window if outside time range
+        if (now - metadata.titleChangeWindow > TITLE_CHANGE_WINDOW) {
+          metadata.titleChangeCount = 1;
+          metadata.titleChangeWindow = now;
+        } else {
+          metadata.titleChangeCount++;
+        }
+
+        // Mark as dynamic if threshold exceeded
+        if (metadata.titleChangeCount > TITLE_CHANGE_THRESHOLD && !metadata.isDynamic) {
+          metadata.isDynamic = true;
+          console.log(`[Tab Decay] Detected dynamic site: ${tab.url} (${metadata.titleChangeCount} title changes)`);
+        }
       }
     }
 
@@ -156,7 +237,6 @@ function getDecayEmoji(lastFocusedTime) {
   const elapsed = Date.now() - lastFocusedTime;
 
   if (elapsed >= DECAY_THRESHOLDS.MOAI) return EMOJIS.MOAI;
-  if (elapsed >= DECAY_THRESHOLDS.TRASH) return EMOJIS.TRASH;
   if (elapsed >= DECAY_THRESHOLDS.SKULL) return EMOJIS.SKULL;
   if (elapsed >= DECAY_THRESHOLDS.HOURGLASS) return EMOJIS.HOURGLASS;
 
@@ -171,6 +251,11 @@ async function updateTabTitle(tabId, activeTabId = null) {
   if (activeTabId && tabId === activeTabId) {
     // Refresh the active tab's timestamp so it doesn't decay
     tabMetadata[tabId].lastFocusedTime = Date.now();
+    return;
+  }
+
+  // Skip dynamic sites to avoid flicker (patterns + learning)
+  if (shouldSkipTab(tabId)) {
     return;
   }
 
@@ -255,18 +340,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         total: tabs.length,
         hourglass: 0,
         skull: 0,
-        trash: 0,
         moai: 0,
-        isEnabled: isEnabled
+        isEnabled: isEnabled,
+        learnedSites: []
       };
 
       tabs.forEach(tab => {
-        if (tabMetadata[tab.id]) {
+        if (tabMetadata[tab.id] && !shouldSkipTab(tab.id)) {
           const emoji = getDecayEmoji(tabMetadata[tab.id].lastFocusedTime);
           if (emoji === EMOJIS.HOURGLASS) stats.hourglass++;
           else if (emoji === EMOJIS.SKULL) stats.skull++;
-          else if (emoji === EMOJIS.TRASH) stats.trash++;
           else if (emoji === EMOJIS.MOAI) stats.moai++;
+        }
+      });
+
+      // Collect learned dynamic sites
+      Object.values(tabMetadata).forEach(metadata => {
+        if (metadata.isDynamic && !stats.learnedSites.includes(metadata.url)) {
+          stats.learnedSites.push(metadata.url);
         }
       });
 
@@ -313,7 +404,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const tabsToPurge = [];
 
       tabs.forEach(tab => {
-        if (tabMetadata[tab.id] && tab.id !== activeTabId) {
+        if (tabMetadata[tab.id] && tab.id !== activeTabId && !shouldSkipTab(tab.id)) {
           const emoji = getDecayEmoji(tabMetadata[tab.id].lastFocusedTime);
           if (emoji === EMOJIS.HOURGLASS) {
             tabsToPurge.push(tab.id);
@@ -332,7 +423,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     if (message.action === 'nukeRot') {
-      // Close tabs with skull, trash, and moai emoji (4+ hours)
+      // Close tabs with skull and moai emoji (4+ hours)
       const tabs = await chrome.tabs.query({});
       // FIX ISSUE 1: Get active tab to avoid closing it
       const activeTabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -341,9 +432,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       const tabsToNuke = [];
 
       tabs.forEach(tab => {
-        if (tabMetadata[tab.id] && tab.id !== activeTabId) {
+        if (tabMetadata[tab.id] && tab.id !== activeTabId && !shouldSkipTab(tab.id)) {
           const emoji = getDecayEmoji(tabMetadata[tab.id].lastFocusedTime);
-          if (emoji === EMOJIS.SKULL || emoji === EMOJIS.TRASH || emoji === EMOJIS.MOAI) {
+          if (emoji === EMOJIS.SKULL || emoji === EMOJIS.MOAI) {
             tabsToNuke.push(tab.id);
           }
         }
