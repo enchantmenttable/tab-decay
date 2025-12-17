@@ -1,0 +1,243 @@
+/* Neo-Brutalist Tab Decay Popup */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 400px;
+  background-color: #f0f0f0;
+  font-family: 'Courier New', 'Space Mono', monospace;
+  color: #000000;
+}
+
+.container {
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 8px 8px 0px #000000;
+}
+
+/* Header */
+.header {
+  background-color: #000000;
+  color: #ccff00;
+  padding: 20px;
+  border-bottom: 3px solid #000000;
+  text-align: center;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+/* The Receipt */
+.receipt {
+  background-color: #ffffff;
+  padding: 20px;
+  border-bottom: 3px solid #000000;
+  font-family: 'Courier New', monospace;
+}
+
+.receipt-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.receipt-line.total {
+  font-weight: 900;
+  font-size: 16px;
+  margin-top: 10px;
+}
+
+.receipt-label {
+  font-weight: 700;
+}
+
+.receipt-value {
+  font-weight: 900;
+  text-align: right;
+}
+
+.receipt-divider {
+  margin: 15px 0;
+  font-weight: 700;
+  color: #000000;
+}
+
+/* Controls */
+.controls {
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-bottom: 3px solid #000000;
+}
+
+/* Toggle Switch */
+.toggle-container {
+  margin-bottom: 20px;
+  background-color: #ffffff;
+  border: 3px solid #000000;
+  box-shadow: 0px 0px 0px #000000;
+  padding: 15px;
+  transition: all 0.1s;
+  transform: translate(0px, 0px);
+}
+
+.toggle-container:hover {
+  transform: translate(-5px, -5px);
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.toggle-container:active {
+  transform: translate(0px, 0px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-input {
+  display: none;
+}
+
+.toggle-slider {
+  width: 60px;
+  height: 30px;
+  background-color: #ff3333;
+  border: 3px solid #000000;
+  position: relative;
+  margin-right: 15px;
+  transition: background-color 0.1s;
+}
+
+.toggle-slider::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #000000;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.1s;
+}
+
+.toggle-input:checked + .toggle-slider {
+  background-color: #ccff00;
+}
+
+.toggle-input:checked + .toggle-slider::after {
+  transform: translateX(30px);
+}
+
+.toggle-text {
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Buttons */
+.btn {
+  width: 100%;
+  padding: 15px 20px;
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  border: 3px solid #000000;
+  cursor: pointer;
+  margin-bottom: 15px;
+  box-shadow: 0px 0px 0px #000000;
+  transition: all 0.1s;
+  position: relative;
+  transform: translate(0px, 0px);
+}
+
+.btn:hover {
+  transform: translate(-5px, -5px);
+  box-shadow: 5px 5px 0px #000000;
+}
+
+.btn:active {
+  transform: translate(0px, 0px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+.btn-yellow {
+  background-color: #ccff00;
+  color: #000000;
+}
+
+.btn-red {
+  background-color: #ff3333;
+  color: #ffffff;
+  font-size: 18px;
+  padding: 20px;
+}
+
+.btn-text {
+  display: block;
+}
+
+/* Footer */
+.footer {
+  background-color: #000000;
+  color: #ccff00;
+  padding: 10px;
+  border-top: 3px solid #000000;
+  overflow: hidden;
+}
+
+footer marquee {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Utility */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  transform: translate(0px, 0px);
+  box-shadow: 0px 0px 0px #000000;
+}
+
+/* Brutal Tooltip */
+.brutal-tooltip {
+  position: fixed;
+  background-color: #000000;
+  color: #ff3333;
+  padding: 8px 12px;
+  border: 3px solid #ff3333;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  pointer-events: none;
+  z-index: 10000;
+  white-space: nowrap;
+  transform: skew(-5deg, -2deg) rotate(-1deg);
+  opacity: 0;
+  transition: opacity 0.1s;
+}
+
+.brutal-tooltip.show {
+  opacity: 1;
+}

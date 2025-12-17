@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TAB DECAY</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="title">TAB ROT</h1>
+    </header>
+
+    <!-- The Receipt (Stats Area) -->
+    <div class="receipt">
+      <div class="receipt-line">
+        <span class="receipt-label">TOTAL TABS:</span>
+        <span class="receipt-value" id="total-tabs">--</span>
+      </div>
+      <div class="receipt-line">
+        <span class="receipt-label">⏳ STALING (1-4h):</span>
+        <span class="receipt-value" id="hourglass-count">--</span>
+      </div>
+      <div class="receipt-line">
+        <span class="receipt-label">💀 ROTTING (4-8h):</span>
+        <span class="receipt-value" id="skull-count">--</span>
+      </div>
+      <div class="receipt-line">
+        <span class="receipt-label">🗑️ GARBAGE (8h+):</span>
+        <span class="receipt-value" id="trash-count">--</span>
+      </div>
+      <div class="receipt-line">
+        <span class="receipt-label">🗿 ANCIENT (2 days+):</span>
+        <span class="receipt-value" id="moai-count">--</span>
+      </div>
+    </div>
+
+    <!-- Control Panel -->
+    <div class="controls">
+      <!-- Toggle Switch -->
+      <div class="toggle-container">
+        <label class="toggle-label">
+          <input type="checkbox" id="toggle-enabled" class="toggle-input" checked>
+          <span class="toggle-slider"></span>
+          <span class="toggle-text">ROT MODE</span>
+        </label>
+      </div>
+
+      <!-- Action Buttons -->
+      <button class="btn btn-yellow" id="purge-stale">
+        <span class="btn-text">PURGE STALE ⏳</span>
+      </button>
+
+      <button class="btn btn-red" id="nuke-rot">
+        <span class="btn-text">NUKE THE ROT 💀🗑️🗿</span>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <marquee behavior="scroll" direction="left" scrollamount="5">
+        YOUR BROWSER IS SCREAMING... CLOSE SOME TABS... THE RAM IS CRYING... TAB HOARDING IS A DISEASE... DIGITAL MINIMALISM NOW...
+      </marquee>
+    </footer>
+  </div>
+
+  <!-- Brutal Tooltip -->
+  <div id="brutal-tooltip" class="brutal-tooltip">THERE'S NO GOING BACK</div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
