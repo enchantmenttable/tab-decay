@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Tab Decay",
+  "name": "Tab Rot",
   "version": "1.0.0",
-  "description": "Combat tab hoarding with aggressive emoji decay indicators",
+  "description": "Combat tab hoarding with aggressive emoji rot indicators",
   "permissions": [
     "tabs",
     "storage",
@@ -17,11 +17,11 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Tab Decay Control Panel"
+    "default_title": "Tab Rot Control Panel"
   },
   "icons": {
-    "16": "icons/icon16.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   }
 }

@@ -1,16 +1,17 @@
 // Tab Decay Background Service Worker
 
-// const DECAY_THRESHOLDS = {
-//   HOURGLASS: 1 * 60 * 60 * 1000,      // 1 hour
-//   SKULL: 4 * 60 * 60 * 1000,          // 4 hours
-//   MOAI: 8 * 60 * 60 * 1000            // 8 hours
-// };
-
 const DECAY_THRESHOLDS = {
-  HOURGLASS: 1 * 60 * 1000,      // 1 hour
-  SKULL: 4 * 60 * 1000,          // 4 hours
-  MOAI: 6 * 60 * 1000            // 8 hours
+  HOURGLASS: 1 * 60 * 60 * 1000,      // 1 hour
+  SKULL: 4 * 60 * 60 * 1000,          // 4 hours
+  MOAI: 8 * 60 * 60 * 1000            // 8 hours
 };
+
+// test
+// const DECAY_THRESHOLDS = {
+//   HOURGLASS: 1 * 60 * 1000,      // 1 min
+//   SKULL: 4 * 60 * 1000,          // 4 min
+//   MOAI: 6 * 60 * 1000            // 6 min
+// };
 
 
 const EMOJIS = {
