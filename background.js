@@ -6,10 +6,10 @@ const DECAY_THRESHOLDS = {
   MOAI: 8 * 60 * 60 * 1000            // 8 hours
 };
 
-// test
+// // test
 // const DECAY_THRESHOLDS = {
 //   HOURGLASS: 1 * 60 * 1000,      // 1 min
-//   SKULL: 4 * 60 * 1000,          // 4 min
+//   SKULL: 3 * 60 * 1000,          // 3 min
 //   MOAI: 6 * 60 * 1000            // 6 min
 // };
 
